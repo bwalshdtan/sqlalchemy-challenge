@@ -19,6 +19,8 @@ Base.prepare(engine, reflect=True)
 Measurement = Base.classes.measurement
 Station = Base.classes.station
 
+session = Session(engine)
+
 # Flask Routes and code
 
 app = Flask(__name__)
@@ -39,7 +41,6 @@ def welcome():
 @app.route("/api/v1.0/precipitation")
 def precipitation():
     """Precitpitation Data for the Last Year"""
-    session = Session(engine)
     last_day = session.query(Measurement.date, Measurement.prcp).order_by(Measurement.date.desc()).first()[0]
     last_year = str(dt.datetime.strptime(last_day, "%Y-%m-%d") - dt.timedelta(days=365))
 
@@ -48,6 +49,24 @@ def precipitation():
         order_by(Measurement.date).all()
     prcp_dict = {date: prcp for date, prcp in precipitation}
     return jsonify(prcp_dict)
+
+@app.route("/api/v1.0/stations")
+def stations():
+    """List of Weather Stations in Hawaii"""
+    station_query = session.query(Station).all()
+    station_list = []
+    for station in station_query:
+        station_dict = {}
+        station_dict['id'] = station.id
+        station_dict['station'] = station.station
+        station_dict['name'] = station.name
+        station_dict['latitude'] = station.latitude
+        station_dict['longitude'] = station.longitude
+        station_dict['elevation'] = station.elevation
+        station_list.append(station_dict)
+    
+    return jsonify(station_list)
+
 
 
 
