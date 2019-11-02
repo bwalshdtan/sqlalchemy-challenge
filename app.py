@@ -42,7 +42,7 @@ def welcome():
 def precipitation():
     """Precitpitation Data for the Last Year"""
     last_day = session.query(Measurement.date, Measurement.prcp).order_by(Measurement.date.desc()).first()[0]
-    last_year = str(dt.datetime.strptime(last_day, "%Y-%m-%d") - dt.timedelta(days=365))
+    last_year = str(dt.datetime.strptime(last_day, "%Y-%m-%d") - dt.timedelta(days=366))
 
     precipitation = session.query(Measurement.date, Measurement.prcp).\
         filter(Measurement.date >= last_year, Measurement.date <= last_day).\
@@ -67,7 +67,25 @@ def stations():
     
     return jsonify(station_list)
 
+@app.route("/api/v1.0/tobs")
+def tobs():
+    """Temperature Observations for the Last Year"""
+    last_day = session.query(Measurement.date, Measurement.prcp).order_by(Measurement.date.desc()).first()[0]
+    last_year = str(dt.datetime.strptime(last_day, "%Y-%m-%d") - dt.timedelta(days=366))
 
+    tobs_query = session.query(Measurement.date, Measurement.station, Measurement.tobs).\
+        filter(Measurement.date >= last_year, Measurement.date <= last_day).\
+        order_by(Measurement.date).all()
+
+    tobs_list = []
+    for tlist in tobs_query:
+        tobs_dict = {}
+        tobs_dict['date'] = tlist.date
+        tobs_dict['station'] = tlist.station
+        tobs_dict['tobs'] = tlist.tobs
+        tobs_list.append(tobs_dict)
+    
+    return jsonify(tobs_list)
 
 
 
