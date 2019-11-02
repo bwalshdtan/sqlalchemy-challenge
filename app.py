@@ -87,6 +87,10 @@ def tobs():
     
     return jsonify(tobs_list)
 
+@app.route("/api/v1.0/<start>")
+def start():
+    """Calculates Tmin Tmax and Tavg for dates after start date"""
+    
 
 
 if __name__ == '__main__':
