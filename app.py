@@ -25,6 +25,19 @@ session = Session(engine)
 
 app = Flask(__name__)
 
+#function to get start and end dates and tmin, tmax, and tavg for laste two api routns
+def calc_temps(start_date, end_date):
+    """Tmax, Tmin, and Tavg for list of dates
+    Args:
+        start_date (string): A date string in the format %Y-%m-%d
+        end_date (string): A date string in the format %Y-%m-%d
+    
+    Returns: Tmzx, Tmin, Tavg
+    """
+    return session.query(func.max(Measurement.tobs), func.min(Measurement.tobs), func.avg(Measurement.tobs)).\
+        filter(Measurement.date >= start_date).filter(Measurement.date <= end_date).all()
+
+
 @app.route("/")
 def welcome():
     """List all available api routes."""
@@ -88,9 +101,22 @@ def tobs():
     return jsonify(tobs_list)
 
 @app.route("/api/v1.0/<start>")
-def start():
+
+def start(start):
     """Calculates Tmin Tmax and Tavg for dates after start date"""
-    
+    last_date_query = session.query(func.max(func.strftime("%Y-%m-%d", Measurement.date))).all()
+    last_date = last_date_query[0][0]
+
+    temps = calc_temps(start, last_date)
+
+    temp_list = []
+    date_dict = {'start_date': start, 'end_date': last_date}
+    temp_list.append(date_dict)
+    temp_list.append({'Tmax': temps[0][0]})
+    temp_list.append({'Tmin': temps[0][1]})
+    temp_list.append({'Tavg': temps[0][2]})
+
+    return jsonify(temp_list)
 
 
 if __name__ == '__main__':
