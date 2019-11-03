@@ -118,6 +118,19 @@ def start(start):
 
     return jsonify(temp_list)
 
+@app.route("/api/v1.0/<start>/<end>")
+def start_end(start, end):
+    """Calculates Tmax, Tmin, and Tavg between two dates"""
+    temps = calc_temps(start, end)
+
+    temp_list = []
+    date_dict = {'start_date': start, 'end_date': end}
+    temp_list.append(date_dict)
+    temp_list.append({'Tmax': temps[0][0]})
+    temp_list.append({'Tmin': temps[0][1]})
+    temp_list.append({'Tavg': temps[0][2]})
+
+    return jsonify(temp_list)
 
 if __name__ == '__main__':
     app.run(debug=True)
