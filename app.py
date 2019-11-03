@@ -47,8 +47,10 @@ def welcome():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/<start>/<end>"
+        f"Enter start date at end of address to get temps for range:<br/>"
+        f"/api/v1.0/startlast/<start><br/>"
+        f"Enter start and end date at end of address to get temps for range:<br/>"
+        f"/api/v1.0/startend/<start>/<end>"
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -100,7 +102,7 @@ def tobs():
     
     return jsonify(tobs_list)
 
-@app.route("/api/v1.0/<start>")
+@app.route("/api/v1.0/startlast/<start>")
 
 def start(start):
     """Calculates Tmin Tmax and Tavg for dates after start date"""
@@ -118,7 +120,7 @@ def start(start):
 
     return jsonify(temp_list)
 
-@app.route("/api/v1.0/<start>/<end>")
+@app.route("/api/v1.0/startend/<start>/<end>")
 def start_end(start, end):
     """Calculates Tmax, Tmin, and Tavg between two dates"""
     temps = calc_temps(start, end)
